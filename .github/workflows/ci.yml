@@ -123,7 +123,7 @@ jobs:
     # reliably (and faster) on large workspaces. `workspaces: v2` points it at
     # the v2/ cargo workspace (keys on v2/Cargo.lock, caches v2/target).
     - name: Cache cargo (Swatinem/rust-cache)
-      uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32
+      uses: Swatinem/rust-cache@f0d9c3887740aee45f6153b24b3a6b815192ec16
       with:
         workspaces: v2
 
