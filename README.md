@@ -24,7 +24,7 @@ graph TD
 | Component | Tested Hardware Specification | Notes |
 |---|---|---|
 | **Microcontroller** | **ESP32-D0WD-V3 (rev 3.1)** / **ESP32-S3** | Dual-core 240MHz, 4MB Flash |
-| **USB Interface** | Silicon Labs CP210x USB-to-UART Bridge (`COM3`) | Baud: `115200` (monitor) / `460800` (flash) |
+| **USB Interface** | USB-to-UART Bridge (`COM3`) | Baud: `115200` (monitor) / `460800` (flash) |
 | **WiFi Network** | 2.4 GHz 802.11b/g/n (HT20 / Ch 1, 6, 11) | Channels with minimal interference |
 | **Host Workstation** | Windows 10/11 x64 with Docker Desktop & Python 3.10+ | Local IP e.g. `192.168.29.122` |
 
