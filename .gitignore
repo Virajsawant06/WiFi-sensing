@@ -1,5 +1,7 @@
 # Local Claude config (contains WiFi credentials and machine-specific paths)
 CLAUDE.local.md
+v2/data/session-secret
+
 
 # ESP32 firmware build artifacts and local config (contains WiFi credentials)
 firmware/esp32-csi-node/build/

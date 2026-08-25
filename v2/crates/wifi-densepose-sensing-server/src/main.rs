@@ -1893,7 +1893,27 @@ fn parse_esp32_frame(buf: &[u8]) -> Option<Esp32Frame> {
     let expected_len = iq_start + n_pairs * 2;
 
     if buf.len() < expected_len {
+        info!(
+            "ESP32 PARSER CHECK: len={} node={} ant={} subs={} expected_len={} magic={:#010x}",
+            buf.len(),
+            node_id,
+            n_antennas,
+            n_subcarriers,
+            expected_len,
+            magic
+        );
         return None;
+        
+        info!(
+            "ESP32 PARSE REJECT: len={} < expected_len={} (node={}, ant={}, subs={})",
+            buf.len(),
+            expected_len,
+            node_id,
+            n_antennas,
+            n_subcarriers
+        );
+        return None;
+    
     }
 
     let mut amplitudes = Vec::with_capacity(n_pairs);
@@ -5910,9 +5930,26 @@ async fn udp_receiver_task(
     loop {
         match socket.recv_from(&mut buf).await {
             Ok((len, src)) => {
+                info!(
+                    "UDP RECEIVED: src={src}, len={len}, header20={:02X?}",
+                    &buf[..len.min(4)]
+                );
+                if len >= 20 {
+                    info!(
+                        "ESP32 HEADER: node={} ant={} subs={} freq={} seq={} rssi={} noise={} ppdu={}",
+                        buf[4],
+                        buf[5],
+                        u16::from_le_bytes([buf[6], buf[7]]),
+                        u32::from_le_bytes([buf[8], buf[9], buf[10], buf[11]]),
+                        u32::from_le_bytes([buf[12], buf[13], buf[14], buf[15]]),
+                        buf[16] as i8,
+                        buf[17] as i8,
+                        buf[18],
+                    );
+                }
                 // ADR-296: drop frames from sources outside the allowlist
                 // (loopback is always admitted). Counted for observability.
-                if !allowlist.admit(src.ip()) {
+                info!("===== ALLOWLIST CHECK: src={} =====", src.ip()); if !allowlist.admit(src.ip()) { info!("===== PACKET DROPPED BY ALLOWLIST =====");
                     debug!(
                         "Dropped UDP frame from disallowed source {src} (allowlist active; total dropped={})",
                         allowlist.dropped()
@@ -6356,8 +6393,9 @@ async fn udp_receiver_task(
                     s.latest_wasm_events = Some(wasm_output);
                     continue;
                 }
-
+                info!("===== REACHED CSI DISPATCH ====="); info!("UDP DATAGRAM: src={src}, len={len}, magic={:#010x}", u32::from_le_bytes([buf[0], buf[1], buf[2], buf[3]]));
                 if let Some(frame) = parse_esp32_frame(&buf[..len]) {
+                    info!("ESP32 PARSED: src={src}, len={len}, node={}, subs={}, seq={}", frame.node_id, frame.n_subcarriers, frame.sequence);
                     debug!(
                         "ESP32 frame from {src}: node={}, subs={}, seq={}",
                         frame.node_id, frame.n_subcarriers, frame.sequence

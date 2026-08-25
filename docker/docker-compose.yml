@@ -20,7 +20,7 @@ services:
       #   python scripts/udp-relay.py --listen-port 5005 --forward-port 5006
       #
       # See docs/TROUBLESHOOTING.md §9 for details.
-      - "5005:5005/udp"
+      - "5006:5005/udp"
     environment:
       - RUST_LOG=info
       # CSI_SOURCE controls the data source for the sensing server.
@@ -31,12 +31,18 @@ services:
       #          esp32          — receive real CSI frames from an ESP32 on UDP port 5005
       #          wifi           — use host Wi-Fi RSSI/scan data (Windows netsh)
       #          simulated      — explicitly generate synthetic CSI for demo mode
+      - RUVIEW_ALLOW_UNAUTHENTICATED=${RUVIEW_ALLOW_UNAUTHENTICATED:-0}
       - CSI_SOURCE=${CSI_SOURCE:-auto}
       # MODELS_DIR controls where the server scans for .rvf model files.
       # Mount a host directory and set this to make models visible:
       #   volumes: ["/path/to/models:/app/models"]
       #   MODELS_DIR=/app/models
       - MODELS_DIR=${MODELS_DIR:-data/models}
+    command:
+      - "--udp-bind"
+      - "0.0.0.0"
+      - "--udp-allow"
+      - "172.18.0.0/16"
     security_opt:
       - no-new-privileges:true
     cap_drop:
